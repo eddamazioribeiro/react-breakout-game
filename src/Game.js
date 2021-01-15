@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
+  const [gameStarted, setGameStarted] = useState(false);
   const [player, setPlayer] = useState({
     width: tilesize * 5,
     height: tilesize,
@@ -15,6 +16,7 @@ const Game = ({width, height, tilesize}) => {
 
   useEffect(() => {
     updateGame();
+    bindEvent('keydown', handleInput);
   });
 
   const init = () => {
@@ -25,16 +27,36 @@ const Game = ({width, height, tilesize}) => {
     movePlayer(x, y);
   }
 
-  const updateGame = () => {
+  const showTitleScreen = () => {
     const context = gameScreen.current.getContext('2d');
     
-    let {x, y} = calculatePlayerInitialPosition(width, height);
-    
     context.clearRect(0, 0, width * tilesize, height * tilesize);
-    context.fillStyle = 'DarkGreen';
-    context.fillRect(player.xPos, player.yPos, player.width, player.height);
     
-    bindEvent('keydown', handleInput);
+    context.fillStyle = 'DarkGreen';
+    context.font = 'bold 70px Arial';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('PONG', ((width * tilesize) / 2), ((height * tilesize) / 3));
+
+    context.fillStyle = 'DarkGreen';
+    context.font = 'bold 19px Arial';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
+  }
+
+  const updateGame = () => {
+    if (gameStarted) {
+      const context = gameScreen.current.getContext('2d');
+
+      let {x, y} = calculatePlayerInitialPosition(width, height);
+      
+      context.clearRect(0, 0, width * tilesize, height * tilesize);
+      context.fillStyle = 'DarkGreen';
+      context.fillRect(player.xPos, player.yPos, player.width, player.height);
+    } else {
+      showTitleScreen();
+    }
   }
   
   const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
@@ -49,37 +71,34 @@ const Game = ({width, height, tilesize}) => {
   const handleInput = e => {
     e.preventDefault();
 
-    let coord = undefined;
+    let keyPressed = false;
 
     switch (e.keyCode) {
-      // left arrow
-      case 37:
-        coord = {x: -1, y: 0};
+      case 13: // enter
+        setGameStarted(true);
+        keyPressed = true;
         break;
-      // up arrow
-      case 38:
-        coord = {x: 0, y: -1};
+      case 37: // left arrow
+        movePlayer(-1 * tilesize, 0 * tilesize);
+        keyPressed = true;
         break;
-      // right arrow
-      case 39:
-        coord = {x: 1, y: 0};
+      case 38: // up arrow
+        // movePlayer(0 * tilesize, -1 * tilesize);
+        // keyPressed = true;
         break;
-      // down arrow
-      case 40:
-        coord = {x: 0, y: 1};
+      case 39: // right arrow
+        movePlayer(1 * tilesize, 0 * tilesize);
+        keyPressed = true;
+        break;
+      case 40: // down arrow
+        // movePlayer(0 * tilesize, 1 * tilesize);
+        // keyPressed = true;
         break;
       default:
         break;
     }
 
-    if (coord !== undefined) {
-      let {x, y} = coord;
-
-      x = x * tilesize;
-      y = y * tilesize;
-
-      movePlayer(x, y);
-    }
+    if (keyPressed) unbindEvent('keydown', handleInput);
   }
   
   const bindEvent = (event, handleEvent) => {
@@ -91,8 +110,6 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const movePlayer = (x, y) => {
-    unbindEvent('keydown', handleInput)
-
     let newPlayer = {...player};
 
     newPlayer.xPos += x;
