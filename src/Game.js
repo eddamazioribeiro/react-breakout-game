@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
-  const [gameStarted, setGameStarted] = useState(false);
+  const [gameStarted, setGameStarted] = useState(true);
   const [player, setPlayer] = useState({
     width: tilesize * 5,
     height: tilesize,
@@ -49,8 +49,6 @@ const Game = ({width, height, tilesize}) => {
     if (gameStarted) {
       const context = gameScreen.current.getContext('2d');
 
-      let {x, y} = calculatePlayerInitialPosition(width, height);
-      
       context.clearRect(0, 0, width * tilesize, height * tilesize);
       context.fillStyle = 'DarkGreen';
       context.fillRect(player.xPos, player.yPos, player.width, player.height);
@@ -111,10 +109,17 @@ const Game = ({width, height, tilesize}) => {
 
   const movePlayer = (x, y) => {
     let newPlayer = {...player};
+    let screeLimit = width * tilesize;
+    let newXPos = newPlayer.xPos + x;
 
-    newPlayer.xPos += x;
-    newPlayer.yPos += y;
-    
+    if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit){
+      newPlayer.xPos = player.xPos;
+      newPlayer.yPos = player.yPos;
+    } else {
+      newPlayer.xPos += x;
+      newPlayer.yPos += y;
+    }
+
     setPlayer(newPlayer);
   }
   
