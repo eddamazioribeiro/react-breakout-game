@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
   const [gameStarted, setGameStarted] = useState(true);
+  const [gamePaused, setGamePaused] = useState(false);
   const [player, setPlayer] = useState({
     width: tilesize * 5,
     height: tilesize,
@@ -32,26 +33,47 @@ const Game = ({width, height, tilesize}) => {
     
     context.clearRect(0, 0, width * tilesize, height * tilesize);
     
-    context.fillStyle = 'DarkGreen';
+    context.fillStyle = 'black';
     context.font = 'bold 70px Arial';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PONG', ((width * tilesize) / 2), ((height * tilesize) / 3));
 
-    context.fillStyle = 'DarkGreen';
+    context.fillStyle = 'black';
     context.font = 'bold 19px Arial';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
   }
 
+  const showPause = () => {
+    const context = gameScreen.current.getContext('2d');
+
+    context.fillStyle = 'black';
+    context.font = 'bold 19px Arial';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('PAUSE',
+      ((width * tilesize) / 2),
+      ((height * tilesize) / 2) + 20
+      );
+  }  
+
+  const pauseGame = (pause) => {
+    setGamePaused(pause);
+  }
+
   const updateGame = () => {
     if (gameStarted) {
-      const context = gameScreen.current.getContext('2d');
-
-      context.clearRect(0, 0, width * tilesize, height * tilesize);
-      context.fillStyle = 'DarkGreen';
-      context.fillRect(player.xPos, player.yPos, player.width, player.height);
+      if (!gamePaused) {
+        const context = gameScreen.current.getContext('2d');
+  
+        context.clearRect(0, 0, width * tilesize, height * tilesize);
+        context.fillStyle = 'black';
+        context.fillRect(player.xPos, player.yPos, player.width, player.height);
+      } else {
+        showPause();
+      }
     } else {
       showTitleScreen();
     }
@@ -66,6 +88,15 @@ const Game = ({width, height, tilesize}) => {
     return {x, y}
   }
 
+  const handleEnterKey = () => {
+    if (!gameStarted) {
+      setGameStarted(true);
+    } else {
+      console.log('pause', gamePaused);
+      pauseGame(!gamePaused);
+    }
+  }
+
   const handleInput = e => {
     e.preventDefault();
 
@@ -73,7 +104,7 @@ const Game = ({width, height, tilesize}) => {
 
     switch (e.keyCode) {
       case 13: // enter
-        setGameStarted(true);
+        handleEnterKey();
         keyPressed = true;
         break;
       case 37: // left arrow
@@ -111,15 +142,17 @@ const Game = ({width, height, tilesize}) => {
     let newPlayer = {...player};
     let screeLimit = width * tilesize;
     let newXPos = newPlayer.xPos + x;
-
-    if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit){
-      newPlayer.xPos = player.xPos;
-      newPlayer.yPos = player.yPos;
-    } else {
-      newPlayer.xPos += x;
-      newPlayer.yPos += y;
+    
+    if (!gamePaused) {  
+      if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit){
+        newPlayer.xPos = player.xPos;
+        newPlayer.yPos = player.yPos;
+      } else {
+        newPlayer.xPos += x;
+        newPlayer.yPos += y;
+      }  
     }
-
+    
     setPlayer(newPlayer);
   }
   
