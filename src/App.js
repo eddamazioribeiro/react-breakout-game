@@ -4,8 +4,8 @@ function App() {
   return (
     <div className="App">
       <Game
-        width={40}
-        height={40}
+        width={22}
+        height={30}
         tilesize={16}
         />
     </div>

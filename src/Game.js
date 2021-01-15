@@ -3,8 +3,10 @@ import React, {useEffect, useRef, useState} from 'react';
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
   const [player, setPlayer] = useState({
-    xPos: 60,
-    yPos: 60
+    width: tilesize * 5,
+    height: tilesize,
+    xPos: 0,
+    yPos: 0
   });
   
   useEffect(() => {
@@ -17,15 +19,31 @@ const Game = ({width, height, tilesize}) => {
 
   const init = () => {
     bindEvent('keydown', handleInput);
+
+    let {x, y} = calculatePlayerInitialPosition(width, height);
+
+    movePlayer(x, y);
   }
 
   const updateGame = () => {
     const context = gameScreen.current.getContext('2d');
+    
+    let {x, y} = calculatePlayerInitialPosition(width, height);
+    
     context.clearRect(0, 0, width * tilesize, height * tilesize);
     context.fillStyle = 'DarkGreen';
-    context.fillRect(player.xPos, player.yPos, 16, 16);
-
+    context.fillRect(player.xPos, player.yPos, player.width, player.height);
+    
     bindEvent('keydown', handleInput);
+  }
+  
+  const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
+    let y = (screenHeight * tilesize) - tilesize;
+    let x = (screenWidth * tilesize) / 2;
+
+    x = x - (player.width / 2);
+
+    return {x, y}
   }
 
   const handleInput = e => {
@@ -55,9 +73,10 @@ const Game = ({width, height, tilesize}) => {
     }
 
     if (coord !== undefined) {
-      unbindEvent('keydown', handleInput)
-      
       let {x, y} = coord;
+
+      x = x * tilesize;
+      y = y * tilesize;
 
       movePlayer(x, y);
     }
@@ -72,10 +91,12 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const movePlayer = (x, y) => {
+    unbindEvent('keydown', handleInput)
+
     let newPlayer = {...player};
 
-    newPlayer.xPos += x * tilesize;
-    newPlayer.yPos += y * tilesize;
+    newPlayer.xPos += x;
+    newPlayer.yPos += y;
     
     setPlayer(newPlayer);
   }
