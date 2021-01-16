@@ -2,8 +2,15 @@ import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
+  const [ticker, setTicker] = useState();
   const [gameStarted, setGameStarted] = useState(true);
   const [gamePaused, setGamePaused] = useState(false);
+  const [ball, setBall] = useState({
+    width: tilesize,
+    height: tilesize,
+    xPos: 0,
+    yPos: 0
+  });
   const [player, setPlayer] = useState({
     width: tilesize * 5,
     height: tilesize,
@@ -13,9 +20,30 @@ const Game = ({width, height, tilesize}) => {
   
   useEffect(() => {
     init();
+
+    let tic = true;
+
+    setInterval(() => {
+      if (tic)
+        console.log('tic');
+      else
+        console.log('toc');
+      
+      tic = !tic;
+
+      let {xPos, yPos} = ball;
+
+      moveBall((xPos + 1) * tilesize, (yPos + 1) * tilesize);
+    }, 1000);
   }, []);
 
   useEffect(() => {
+    console.log('refreshBall')
+  }, [ball]);
+
+  useEffect(() => {
+    console.log('refreshGame')
+
     updateGame();
     bindEvent('keydown', handleInput);
   });
@@ -26,6 +54,17 @@ const Game = ({width, height, tilesize}) => {
     let {x, y} = calculatePlayerInitialPosition(width, height);
 
     movePlayer(x, y);
+  }
+
+  const moveBall = (x, y) => {
+    let newBall = {...ball};
+    
+    if (!gamePaused) {
+      newBall.xPos += x;
+      newBall.yPos += y; 
+    }
+    
+    setBall(newBall);
   }
 
   const showTitleScreen = () => {
@@ -64,6 +103,7 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const updateGame = () => {
+    console.log('refreshAll');
     if (gameStarted) {
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
@@ -71,6 +111,7 @@ const Game = ({width, height, tilesize}) => {
         context.clearRect(0, 0, width * tilesize, height * tilesize);
         context.fillStyle = 'black';
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
+        context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
         showPause();
       }
@@ -92,7 +133,6 @@ const Game = ({width, height, tilesize}) => {
     if (!gameStarted) {
       setGameStarted(true);
     } else {
-      console.log('pause', gamePaused);
       pauseGame(!gamePaused);
     }
   }
