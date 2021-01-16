@@ -24,15 +24,15 @@ const Game = ({width, height, tilesize}) => {
   useEffect(() => {
     init();
   }, []);
+  
+  useEffect(() => {
+    moveBall(1 * tilesize, 1 * tilesize);
+  }, [timer]);
 
   useEffect(() => {
     updateGame();
     bindEvent('keydown', handleInput);
   });
-
-  useEffect(() => {
-    moveBall(1 * tilesize, 1 * tilesize);
-  }, [timer]);
 
   const init = () => {
     bindEvent('keydown', handleInput);
@@ -40,6 +40,9 @@ const Game = ({width, height, tilesize}) => {
     let {x, y} = calculatePlayerInitialPosition(width, height);
 
     movePlayer(x, y);
+
+    let t = 0;
+    startTimer(t);
   }
 
   const startTimer = (t) => {
@@ -50,11 +53,6 @@ const Game = ({width, height, tilesize}) => {
  
   const updateGame = () => {
     if (gameStarted) {
-      if (timer === 0) {
-        let t = 0;
-        startTimer(t);
-      }
-
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
   
@@ -136,17 +134,9 @@ const Game = ({width, height, tilesize}) => {
         movePlayer(-1 * tilesize, 0 * tilesize);
         keyPressed = true;
         break;
-      case 38: // up arrow
-        // movePlayer(0 * tilesize, -1 * tilesize);
-        // keyPressed = true;
-        break;
       case 39: // right arrow
         movePlayer(1 * tilesize, 0 * tilesize);
         keyPressed = true;
-        break;
-      case 40: // down arrow
-        // movePlayer(0 * tilesize, 1 * tilesize);
-        // keyPressed = true;
         break;
       default:
         break;
