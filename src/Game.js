@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
-  const [ticker, setTicker] = useState();
+  const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
   const [ball, setBall] = useState({
@@ -21,33 +21,18 @@ const Game = ({width, height, tilesize}) => {
   useEffect(() => {
     init();
 
-    let tic = true;
-
-    setInterval(() => {
-      if (tic)
-        console.log('tic');
-      else
-        console.log('toc');
-      
-      tic = !tic;
-
-      let {xPos, yPos} = ball;
-
-      moveBall((xPos + 1) * tilesize, (yPos + 1) * tilesize);
-    }, 1000);
+    let t = 0;
+    startTimer(t);
   }, []);
 
-  
   useEffect(() => {
-    console.log('refreshGame')
-    
     updateGame();
     bindEvent('keydown', handleInput);
   });
-  
+
   useEffect(() => {
-    console.log('refreshBall')
-  }, [ball]);
+    moveBall(1 * tilesize, 1 * tilesize);
+  }, [timer]);
 
   const init = () => {
     bindEvent('keydown', handleInput);
@@ -57,16 +42,29 @@ const Game = ({width, height, tilesize}) => {
     movePlayer(x, y);
   }
 
-  const moveBall = (x, y) => {
-    let newBall = {...ball};
-    
-    if (!gamePaused) {
-      newBall.xPos += x;
-      newBall.yPos += y; 
-    }
-    
-    setBall(newBall);
+  const startTimer = (t) => {
+    setInterval(() => {
+      setTimer(t++);
+      console.log(t);
+    }, 200);
   }
+ 
+  const updateGame = () => {
+    if (gameStarted) {
+      if (!gamePaused) {
+        const context = gameScreen.current.getContext('2d');
+  
+        context.clearRect(0, 0, width * tilesize, height * tilesize);
+        context.fillStyle = 'black';
+        context.fillRect(player.xPos, player.yPos, player.width, player.height);
+        context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
+      } else {
+        showPause();
+      }
+    } else {
+      showTitleScreen();
+    }
+  } 
 
   const showTitleScreen = () => {
     const context = gameScreen.current.getContext('2d');
@@ -101,24 +99,6 @@ const Game = ({width, height, tilesize}) => {
 
   const pauseGame = (pause) => {
     setGamePaused(pause);
-  }
-
-  const updateGame = () => {
-    console.log('refreshAll');
-    if (gameStarted) {
-      if (!gamePaused) {
-        const context = gameScreen.current.getContext('2d');
-  
-        context.clearRect(0, 0, width * tilesize, height * tilesize);
-        context.fillStyle = 'black';
-        context.fillRect(player.xPos, player.yPos, player.width, player.height);
-        context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
-      } else {
-        showPause();
-      }
-    } else {
-      showTitleScreen();
-    }
   }
   
   const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
@@ -196,10 +176,28 @@ const Game = ({width, height, tilesize}) => {
     
     setPlayer(newPlayer);
   }
+
+  const moveBall = (x, y) => {
+    let newBall = {...ball};
+    let screeLimit = width * tilesize;
+    let newXPos = newBall.xPos + x;
+
+    if (!gamePaused) {  
+      if (newXPos < 0 || ((newXPos) + newBall.width) > screeLimit){
+        newBall.xPos = ball.xPos;
+        newBall.yPos = ball.yPos;
+      } else {
+        newBall.xPos += x;
+        newBall.yPos += y;
+      }  
+    }
+    
+    setBall(newBall);
+  }
   
   return(
     <>
-      <div>
+      <div className="main">
         <canvas
           ref={gameScreen}
           width={width * tilesize}
