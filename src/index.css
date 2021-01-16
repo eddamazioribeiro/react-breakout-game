@@ -1,13 +1,19 @@
+/* import font */
+@font-face {
+  font-family: 'EarlyGameboy';
+  src: url('./assets/font/EarlyGameBoy.ttf') format('truetype')
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.title {
+  margin-left: 5px;
+  font-family: EarlyGameboy;
 }

@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const Game = ({width, height, tilesize}) => {
   const gameScreen = useRef();
   const [ticker, setTicker] = useState();
-  const [gameStarted, setGameStarted] = useState(true);
+  const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
   const [ball, setBall] = useState({
     width: tilesize,
@@ -37,16 +37,17 @@ const Game = ({width, height, tilesize}) => {
     }, 1000);
   }, []);
 
-  useEffect(() => {
-    console.log('refreshBall')
-  }, [ball]);
-
+  
   useEffect(() => {
     console.log('refreshGame')
-
+    
     updateGame();
     bindEvent('keydown', handleInput);
   });
+  
+  useEffect(() => {
+    console.log('refreshBall')
+  }, [ball]);
 
   const init = () => {
     bindEvent('keydown', handleInput);
@@ -73,13 +74,13 @@ const Game = ({width, height, tilesize}) => {
     context.clearRect(0, 0, width * tilesize, height * tilesize);
     
     context.fillStyle = 'black';
-    context.font = 'bold 70px Arial';
+    context.font = 'bold 70px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PONG', ((width * tilesize) / 2), ((height * tilesize) / 3));
 
     context.fillStyle = 'black';
-    context.font = 'bold 19px Arial';
+    context.font = 'bold 19px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
@@ -89,7 +90,7 @@ const Game = ({width, height, tilesize}) => {
     const context = gameScreen.current.getContext('2d');
 
     context.fillStyle = 'black';
-    context.font = 'bold 19px Arial';
+    context.font = 'bold 19px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PAUSE',
