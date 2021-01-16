@@ -23,9 +23,6 @@ const Game = ({width, height, tilesize}) => {
   
   useEffect(() => {
     init();
-
-    let t = 0;
-    startTimer(t);
   }, []);
 
   useEffect(() => {
@@ -53,6 +50,11 @@ const Game = ({width, height, tilesize}) => {
  
   const updateGame = () => {
     if (gameStarted) {
+      if (timer === 0) {
+        let t = 0;
+        startTimer(t);
+      }
+
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
   
@@ -94,8 +96,8 @@ const Game = ({width, height, tilesize}) => {
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PAUSE',
-      ((width * tilesize) / 2),
-      ((height * tilesize) / 2) + 20
+        ((width * tilesize) / 2),
+        ((height * tilesize) / 2) + 20
       );
   }  
 
@@ -194,10 +196,10 @@ const Game = ({width, height, tilesize}) => {
       if ((newYPos - newBall.height) <= 0 || ((newYPos) + newBall.height) > screenYLimit){
         newBall.yDir = ball.yDir * -1;
       }      
+  
+      newBall.xPos += x * newBall.xDir;
+      newBall.yPos += y * newBall.yDir;
     }
-
-    newBall.xPos += x * newBall.xDir;
-    newBall.yPos += y * newBall.yDir;
     
     setBall(newBall);
   }
