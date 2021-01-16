@@ -32,7 +32,7 @@ const Game = ({width, height, tilesize}) => {
   useEffect(() => {
     updateGame();
     bindEvent('keydown', handleInput);
-  });
+  }, [timer]);
 
   const init = () => {
     bindEvent('keydown', handleInput);
