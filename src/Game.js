@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
+  const gameSpeed = 50;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -8,8 +9,10 @@ const Game = ({width, height, tilesize}) => {
   const [ball, setBall] = useState({
     width: tilesize,
     height: tilesize,
-    xPos: 0,
-    yPos: 0
+    xPos: tilesize,
+    xDir: 1,
+    yPos: tilesize,
+    yDir: 1
   });
   const [player, setPlayer] = useState({
     width: tilesize * 5,
@@ -45,8 +48,7 @@ const Game = ({width, height, tilesize}) => {
   const startTimer = (t) => {
     setInterval(() => {
       setTimer(t++);
-      console.log(t);
-    }, 200);
+    }, gameSpeed);
   }
  
   const updateGame = () => {
@@ -179,18 +181,23 @@ const Game = ({width, height, tilesize}) => {
 
   const moveBall = (x, y) => {
     let newBall = {...ball};
-    let screeLimit = width * tilesize;
+    let screenXLimit = width * tilesize;
+    let screenYLimit = height * tilesize;
     let newXPos = newBall.xPos + x;
+    let newYPos = newBall.yPos + y;
 
     if (!gamePaused) {  
-      if (newXPos < 0 || ((newXPos) + newBall.width) > screeLimit){
-        newBall.xPos = ball.xPos;
-        newBall.yPos = ball.yPos;
-      } else {
-        newBall.xPos += x;
-        newBall.yPos += y;
-      }  
+      if ((newXPos - newBall.width) <= 0 || ((newXPos) + newBall.width) > screenXLimit){
+        newBall.xDir = ball.xDir * -1;
+      }
+
+      if ((newYPos - newBall.height) <= 0 || ((newYPos) + newBall.height) > screenYLimit){
+        newBall.yDir = ball.yDir * -1;
+      }      
     }
+
+    newBall.xPos += x * newBall.xDir;
+    newBall.yPos += y * newBall.yDir;
     
     setBall(newBall);
   }
