@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 50;
+  const gameSpeed = 100;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
   const [ball, setBall] = useState({
     width: tilesize,
     height: tilesize,
@@ -18,6 +19,7 @@ const Game = ({width, height, tilesize}) => {
     width: tilesize * 5,
     height: tilesize,
     xPos: 0,
+    xDir: 0,
     yPos: 0
   });
   
@@ -47,12 +49,18 @@ const Game = ({width, height, tilesize}) => {
 
   const startTimer = (t) => {
     setInterval(() => {
-      setTimer(t++);
+      if (!gameOver) setTimer(t++);
     }, gameSpeed);
   }
  
   const updateGame = () => {
     if (gameStarted) {
+      if (gameOver) {
+        showGameOver();
+
+        return;
+      }
+
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
   
@@ -94,6 +102,19 @@ const Game = ({width, height, tilesize}) => {
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('PAUSE',
+        ((width * tilesize) / 2),
+        ((height * tilesize) / 2) + 20
+      );
+  }
+
+  const showGameOver = () => {
+    const context = gameScreen.current.getContext('2d');
+
+    context.fillStyle = 'black';
+    context.font = 'bold 19px EarlyGameboy';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('GAME OVER',
         ((width * tilesize) / 2),
         ((height * tilesize) / 2) + 20
       );
@@ -158,6 +179,8 @@ const Game = ({width, height, tilesize}) => {
     let screeLimit = width * tilesize;
     let newXPos = newPlayer.xPos + x;
     
+    newPlayer.xDir = (x > 0) ? 1 : -1;
+
     if (!gamePaused) {  
       if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit){
         newPlayer.xPos = player.xPos;
@@ -178,14 +201,26 @@ const Game = ({width, height, tilesize}) => {
     let newXPos = newBall.xPos + x;
     let newYPos = newBall.yPos + y;
 
-    if (!gamePaused) {  
-      if ((newXPos - newBall.width) <= 0 || ((newXPos) + newBall.width) > screenXLimit){
+    if (!gamePaused && gameStarted && !gameOver) {
+      if ((newXPos >= player.xPos) && (newXPos <= player.xPos + player.width)
+        &&  (newYPos + newBall.height > screenYLimit - player.height)) {
+        newBall.yDir = ball.yDir * -1;
+        newBall.xDir = ball.yDir * (player.xDir !== 0) ? player.xDir : 1;
+      } 
+      
+      if ((newXPos - newBall.width) <= 0 || ((newXPos) + newBall.width) > screenXLimit) {
         newBall.xDir = ball.xDir * -1;
       }
 
-      if ((newYPos - newBall.height) <= 0 || ((newYPos) + newBall.height) > screenYLimit){
+      if (newYPos - newBall.height <= 0) {
         newBall.yDir = ball.yDir * -1;
-      }      
+      }
+
+      else if (newYPos + newBall.height > screenYLimit) {
+        setGameOver(true);
+
+        return;
+      }
   
       newBall.xPos += x * newBall.xDir;
       newBall.yPos += y * newBall.yDir;
