@@ -1,5 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
+const MAP = []
+
 const Game = ({width, height, tilesize}) => {
   const gameSpeed = 100;
   const gameScreen = useRef();
@@ -22,6 +24,7 @@ const Game = ({width, height, tilesize}) => {
     xDir: 0,
     yPos: 0
   });
+  const [map, setMap] = useState([[]]);
   
   useEffect(() => {
     init();
@@ -39,12 +42,34 @@ const Game = ({width, height, tilesize}) => {
   const init = () => {
     bindEvent('keydown', handleInput);
 
+    createMap();
+
     let {x, y} = calculatePlayerInitialPosition(width, height);
 
     movePlayer(x, y);
 
     let t = 0;
     startTimer(t);
+  }
+
+  const createMap = () => {
+    for (let i = 0; i < width * tilesize; i++) {
+      MAP.push([]);
+      for (let j = 0; j < height * tilesize; j++) {
+        let fill = false;
+
+        if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
+          && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+            fill = true;
+        }
+
+        MAP[i].push({
+          fill: fill,
+          xPos: j * tilesize,
+          yPos: i * tilesize
+        });
+      }
+    }
   }
 
   const startTimer = (t) => {
@@ -63,9 +88,20 @@ const Game = ({width, height, tilesize}) => {
 
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
-  
+          
         context.clearRect(0, 0, width * tilesize, height * tilesize);
         context.fillStyle = 'black';
+
+        for (let i = 0; i < width * tilesize; i++) {
+          for (let j = 0; j < height * tilesize; j++) {
+            let block = MAP[i][j];
+
+            if (block.fill) {
+              context.fillRect(block.xPos, block.yPos, tilesize, tilesize);
+            }
+          }
+        }        
+
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
@@ -221,7 +257,31 @@ const Game = ({width, height, tilesize}) => {
 
         return;
       }
-  
+
+      // let loop = true;
+      // let hitBlock = false;
+
+      // for (let i = 0; i < width * tilesize; i++) {
+      //   if (loop) {
+      //     for (let j = 0; j < height * tilesize; j++) {
+      //       let block = MAP[i][j];
+
+      //       if (block.fill) {
+      //         if (newXPos === block.xPos && newYPos === block.yPos) {
+      //           hitBlock = true;
+      //         }
+              
+      //         if (hitBlock) {
+      //           MAP[i][j].fill = false;
+      //           console.log('hit block');
+      //           loop = false;
+      //           break;
+      //         }
+      //       }
+      //     }
+      //   } else break;
+      // }
+      
       newBall.xPos += x * newBall.xDir;
       newBall.yPos += y * newBall.yDir;
     }
