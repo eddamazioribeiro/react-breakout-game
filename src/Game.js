@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-const MAP = []
+const _map = []
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 100;
+  const gameSpeed = 400;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -54,19 +54,24 @@ const Game = ({width, height, tilesize}) => {
 
   const createMap = () => {
     for (let i = 0; i < width * tilesize; i++) {
-      MAP.push([]);
+      _map.push([]);
       for (let j = 0; j < height * tilesize; j++) {
         let fill = false;
 
-        if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-          && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+        // if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
+        // && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+        if ((j == 2 && i == 3)
+          || (j == 3 && i == 3)
+          || (j == 1 && i == 8)
+          || (j == 3 && i == 4)
+          ) {
             fill = true;
         }
 
-        MAP[i].push({
+        _map[i].push({
           fill: fill,
-          xPos: j * tilesize,
-          yPos: i * tilesize
+          yPos: j * tilesize,
+          xPos: i * tilesize
         });
       }
     }
@@ -94,7 +99,7 @@ const Game = ({width, height, tilesize}) => {
 
         for (let i = 0; i < width * tilesize; i++) {
           for (let j = 0; j < height * tilesize; j++) {
-            let block = MAP[i][j];
+            let block = _map[i][j];
 
             if (block.fill) {
               context.fillRect(block.xPos, block.yPos, tilesize, tilesize);
@@ -258,29 +263,37 @@ const Game = ({width, height, tilesize}) => {
         return;
       }
 
-      // let loop = true;
-      // let hitBlock = false;
+      let loop = true;
+      let hitBlock = false;
 
-      // for (let i = 0; i < width * tilesize; i++) {
-      //   if (loop) {
-      //     for (let j = 0; j < height * tilesize; j++) {
-      //       let block = MAP[i][j];
+      console.log(newXPos, newYPos);
 
-      //       if (block.fill) {
-      //         if (newXPos === block.xPos && newYPos === block.yPos) {
-      //           hitBlock = true;
-      //         }
-              
-      //         if (hitBlock) {
-      //           MAP[i][j].fill = false;
-      //           console.log('hit block');
-      //           loop = false;
-      //           break;
-      //         }
-      //       }
-      //     }
-      //   } else break;
-      // }
+      for (let i = 0; i < width * tilesize; i++) {
+        if (loop) {
+          for (let j = 0; j < height * tilesize; j++) {
+            let block = _map[i][j];
+            
+            if (block.fill) {
+              // hit corner
+              if ((newXPos === block.xPos && newYPos === block.yPos)
+                ) {
+                newBall.xDir = ball.xDir * -1;
+                newBall.yDir = ball.yDir * -1;
+
+                console.log('hit corner');
+
+                hitBlock = true;
+              }
+
+              if (hitBlock) {
+                _map[i][j].fill = false;
+                loop = false;
+                break;
+              }
+            }
+          }
+        } else break;
+      }
       
       newBall.xPos += x * newBall.xDir;
       newBall.yPos += y * newBall.yDir;
