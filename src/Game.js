@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-const _map = []
+const _map = [];
 
 const Game = ({width, height, tilesize}) => {
   const gameSpeed = 400;
@@ -24,7 +24,6 @@ const Game = ({width, height, tilesize}) => {
     xDir: 0,
     yPos: 0
   });
-  const [map, setMap] = useState([[]]);
   
   useEffect(() => {
     init();
@@ -58,20 +57,23 @@ const Game = ({width, height, tilesize}) => {
       for (let j = 0; j < height * tilesize; j++) {
         let fill = false;
 
-        // if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        // && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
-        if ((j == 2 && i == 3)
-          || (j == 3 && i == 3)
-          || (j == 1 && i == 8)
-          || (j == 3 && i == 4)
-          ) {
-            fill = true;
+        if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
+        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+        // if ((j == 2 && i == 3)
+        //   || (j == 3 && i == 3)
+        //   || (j == 1 && i == 8)
+        //   || (j == 3 && i == 4)
+        //   || (j == 5 && i == 1)
+        //   || (j == 4 && i == 1)
+        //   || (j == 0 && i == 1)
+          // ) {
+          fill = true;
         }
 
         _map[i].push({
           fill: fill,
-          yPos: j * tilesize,
-          xPos: i * tilesize
+          yPos: i * tilesize,
+          xPos: j * tilesize
         });
       }
     }
@@ -105,8 +107,8 @@ const Game = ({width, height, tilesize}) => {
               context.fillRect(block.xPos, block.yPos, tilesize, tilesize);
             }
           }
-        }        
-
+        }
+        
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
@@ -223,7 +225,7 @@ const Game = ({width, height, tilesize}) => {
     newPlayer.xDir = (x > 0) ? 1 : -1;
 
     if (!gamePaused) {  
-      if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit){
+      if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit) {
         newPlayer.xPos = player.xPos;
         newPlayer.yPos = player.yPos;
       } else {
@@ -266,8 +268,6 @@ const Game = ({width, height, tilesize}) => {
       let loop = true;
       let hitBlock = false;
 
-      console.log(newXPos, newYPos);
-
       for (let i = 0; i < width * tilesize; i++) {
         if (loop) {
           for (let j = 0; j < height * tilesize; j++) {
@@ -276,11 +276,51 @@ const Game = ({width, height, tilesize}) => {
             if (block.fill) {
               // hit corner
               if ((newXPos === block.xPos && newYPos === block.yPos)
-                ) {
+                && (ball.xDir > 0 && ball.yDir > 0 || ball.xDir < 0 && ball.yDir < 0)) {
                 newBall.xDir = ball.xDir * -1;
                 newBall.yDir = ball.yDir * -1;
 
                 console.log('hit corner');
+
+                hitBlock = true;
+              }
+              
+              // hit right face
+              else if ((ball.yPos == block.yPos)
+                && ((ball.xPos + newBall.width) == block.xPos && ball.xDir > 0)) {
+                newBall.xDir = ball.xDir * -1;
+
+                console.log('hit right face');
+
+                hitBlock = true;
+              }
+
+              // hit left face
+              else if ((ball.yPos == block.yPos)
+                && ((ball.xPos - newBall.width) == block.xPos && ball.xDir < 0)) {
+                newBall.xDir = ball.xDir * -1;
+
+                console.log('hit left face');
+
+                hitBlock = true;
+              }
+
+              // hit top face
+              else if ((ball.xPos == block.xPos)
+                && ((ball.yPos - newBall.height) == block.yPos && ball.yDir < 0)) {
+                newBall.yDir = ball.yDir * -1;
+
+                console.log('hit top face');
+
+                hitBlock = true;
+              }
+
+              // hit bottom face
+              else if ((ball.xPos == block.xPos)
+              && ((ball.yPos + newBall.height) == block.yPos && ball.yDir > 0)) {
+                newBall.yDir = ball.yDir * -1;
+
+                console.log('hit bottom face');
 
                 hitBlock = true;
               }
