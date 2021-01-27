@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const _map = [];
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 400;
+  const gameSpeed = 150;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -52,21 +52,27 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const createMap = () => {
-    for (let i = 0; i < width * tilesize; i++) {
+    for (let i = 0; i <= width * tilesize; i++) {
+
       _map.push([]);
-      for (let j = 0; j < height * tilesize; j++) {
+
+      for (let j = 0; j <= height * tilesize; j++) {
         let fill = false;
 
-        if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
-        // if ((j == 2 && i == 3)
-        //   || (j == 3 && i == 3)
-        //   || (j == 1 && i == 8)
-        //   || (j == 3 && i == 4)
-        //   || (j == 5 && i == 1)
-        //   || (j == 4 && i == 1)
-        //   || (j == 0 && i == 1)
-          // ) {
+        // if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
+        // && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+        if (
+          // (j === 2 && i === 3)
+          (j === 0 && i === 0)
+          || (j === 1 && i === 1)
+          || (j === 3 && i === 3)
+          // || (j === 1 && i === 8)
+          // || (j === 3 && i === 4)
+          // || (j === 5 && i === 1)
+          // || (j === 4 && i === 1)
+          || (j === 2 && i === 14)
+          || (j === 4 && i === 4)
+          ) {
           fill = true;
         }
 
@@ -245,21 +251,24 @@ const Game = ({width, height, tilesize}) => {
     let newYPos = newBall.yPos + y;
 
     if (!gamePaused && gameStarted && !gameOver) {
-      if ((newXPos >= player.xPos) && (newXPos <= player.xPos + player.width)
-        &&  (newYPos + newBall.height > screenYLimit - player.height)) {
-        newBall.yDir = ball.yDir * -1;
-        newBall.xDir = ball.yDir * (player.xDir !== 0) ? player.xDir : 1;
-      } 
+      // hit player
+      if (
+        (newXPos >= player.xPos - tilesize) && (newXPos <= player.xPos + player.width + tilesize)
+        && (newYPos >= screenYLimit - player.height)) {
+        newBall.yDir = newBall.yDir * -1;
+        newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
+      }
       
-      if ((newXPos - newBall.width) <= 0 || ((newXPos) + newBall.width) > screenXLimit) {
-        newBall.xDir = ball.xDir * -1;
+      // X axis bouncing
+      if (newXPos - newBall.width <= 0 || newXPos >= screenXLimit) {
+        newBall.xDir = newBall.xDir * -1;
       }
 
+      // Y axis bouncing
       if (newYPos - newBall.height <= 0) {
-        newBall.yDir = ball.yDir * -1;
+        newBall.yDir = newBall.yDir * -1;
       }
-
-      else if (newYPos + newBall.height > screenYLimit) {
+      else if (newYPos === screenYLimit) {
         setGameOver(true);
 
         return;
@@ -274,72 +283,34 @@ const Game = ({width, height, tilesize}) => {
             let block = _map[i][j];
             
             if (block.fill) {
+              console.log('block', block.xPos, block.yPos);
+              console.log('ball', newXPos, newYPos);
               // hit corner
-              if ((newXPos === block.xPos && newYPos === block.yPos)
-                && (ball.xDir > 0 && ball.yDir > 0 || ball.xDir < 0 && ball.yDir < 0)) {
+              if (newXPos === block.xPos && newYPos === block.yPos) {
                 newBall.xDir = ball.xDir * -1;
                 newBall.yDir = ball.yDir * -1;
+
 
                 console.log('hit corner');
 
                 hitBlock = true;
               }
-              
-              // hit right face
-              else if ((ball.yPos == block.yPos)
-                && ((ball.xPos + newBall.width) == block.xPos && ball.xDir > 0)) {
-                newBall.xDir = ball.xDir * -1;
-
-                console.log('hit right face');
-
-                hitBlock = true;
-              }
-
-              // hit left face
-              else if ((ball.yPos == block.yPos)
-                && ((ball.xPos - newBall.width) == block.xPos && ball.xDir < 0)) {
-                newBall.xDir = ball.xDir * -1;
-
-                console.log('hit left face');
-
-                hitBlock = true;
-              }
-
-              // hit top face
-              else if ((ball.xPos == block.xPos)
-                && ((ball.yPos - newBall.height) == block.yPos && ball.yDir < 0)) {
-                newBall.yDir = ball.yDir * -1;
-
-                console.log('hit top face');
-
-                hitBlock = true;
-              }
-
-              // hit bottom face
-              else if ((ball.xPos == block.xPos)
-              && ((ball.yPos + newBall.height) == block.yPos && ball.yDir > 0)) {
-                newBall.yDir = ball.yDir * -1;
-
-                console.log('hit bottom face');
-
-                hitBlock = true;
-              }
-
+ 
               if (hitBlock) {
                 _map[i][j].fill = false;
                 loop = false;
                 break;
               }
-            }
+            } else break;
           }
         } else break;
       }
-      
+
       newBall.xPos += x * newBall.xDir;
       newBall.yPos += y * newBall.yDir;
+
+      setBall(newBall);
     }
-    
-    setBall(newBall);
   }
   
   return(
