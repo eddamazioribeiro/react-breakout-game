@@ -245,62 +245,19 @@ const Game = ({width, height, tilesize}) => {
 
   const moveBall = (x, y) => {
     let newBall = {...ball};
-    let screenXLimit = width * tilesize;
-    let screenYLimit = height * tilesize;
     let newXPos = newBall.xPos + x;
     let newYPos = newBall.yPos + y;
 
     if (!gamePaused && gameStarted && !gameOver) {
-      // hit player
-      if ((newYPos >= screenYLimit - player.height)
-        &&(newXPos >= player.xPos) && (newXPos <= player.xPos + player.width + tilesize)) {
-        newBall.yDir = newBall.yDir * -1;
-        newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
-      }
-      
-      // X axis bouncing
-      if (newXPos - newBall.width <= 0 || newXPos >= screenXLimit) {
-        newBall.xDir = newBall.xDir * -1;
-      }
+      newBall = handleHitPlayer(newXPos, newYPos, newBall);
+      newBall = handleHitWall(newXPos, newYPos, newBall);
 
-      // Y axis bouncing
-      if (newYPos - newBall.height <= 0) {
-        newBall.yDir = newBall.yDir * -1;
-      }
-      else if (newYPos === screenYLimit) {
+      if (!ball.isDead) {
+        // newBall = handleHitBlock(newXPos, newYPos, newBall);
+      } else {
         setGameOver(true);
 
         return;
-      }
-
-      let loop = true;
-      let hitBlock = false;
-
-      for (let i = 0; i < width * tilesize; i++) {
-        if (loop) {
-          for (let j = 0; j < height * tilesize; j++) {
-            let block = _map[i][j];
-            
-            if (block.fill) {
-              // hit corner
-              if (newXPos === block.xPos && newYPos === block.yPos) {
-                newBall.xDir = ball.xDir * -1;
-                newBall.yDir = ball.yDir * -1;
-
-
-                console.log('hit corner');
-
-                hitBlock = true;
-              }
- 
-              if (hitBlock) {
-                _map[i][j].fill = false;
-                loop = false;
-                break;
-              }
-            }
-          }
-        } else break;
       }
 
       newBall.xPos += x * newBall.xDir;
@@ -310,6 +267,74 @@ const Game = ({width, height, tilesize}) => {
     }
   }
   
+  const handleHitPlayer = (newX, newY, newBall) => {
+    let screenYLimit = height * tilesize;
+
+    if ((newY >= screenYLimit - player.height)
+      &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
+      newBall.yDir = newBall.yDir * -1;
+      newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
+    }
+
+    return newBall;
+  }
+
+  const handleHitWall = (newX, newY, newBall) => {
+    let screenYLimit = height * tilesize;
+    let screenXLimit = width * tilesize;
+
+    // X axis bouncing
+    if (newX - newBall.width <= 0 || newX >= screenXLimit) {
+      newBall.xDir = newBall.xDir * -1;
+    }
+
+    // Y axis bouncing
+    if (newY - newBall.height <= 0) {
+      newBall.yDir = newBall.yDir * -1;
+    }
+    
+    // hit the floor, GAME OVER
+    if (newY === (screenYLimit - newBall.height) && newBall.yDir > 0) {
+      newBall.isDead = true;
+    }
+
+    return newBall;
+  }
+
+  const handleHitBlock = (newX, newY, newBall) => {
+    let loop = true;
+    let hitBlock = false;
+
+    for (let i = 0; i < width * tilesize; i++) {
+      if (loop) {
+        for (let j = 0; j < height * tilesize; j++) {
+          let block = _map[i][j];
+          
+          if (block.fill) {
+            // hit corner
+            if (newX === block.xPos && newY === block.yPos) {
+              newBall.xDir = ball.xDir * -1;
+              newBall.yDir = ball.yDir * -1;
+
+
+              console.log('hit corner');
+
+              hitBlock = true;
+            }
+
+            if (hitBlock) {
+              _map[i][j].fill = false;
+              loop = false;
+              break;
+            }
+          }
+        }
+      } else break;
+    }
+
+    return newBall;
+  }
+
   return(
     <>
       <div className="main">
