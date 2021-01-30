@@ -252,24 +252,11 @@ const Game = ({width, height, tilesize}) => {
 
     if (!gamePaused && gameStarted && !gameOver) {
       // hit player
-      if (
-        (newXPos >= player.xPos) && (newXPos <= player.xPos + player.width)
-        && (newYPos >= screenYLimit - player.height)) {
+      if ((newYPos >= screenYLimit - player.height)
+        &&(newXPos >= player.xPos) && (newXPos <= player.xPos + player.width + tilesize)) {
         newBall.yDir = newBall.yDir * -1;
         newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
-      } else if (
-        (newXPos == player.xPos - tilesize)
-        && (player.xDir < 0)
-        && (newYPos >= screenYLimit - player.height)) {
-        newBall.yDir = newBall.yDir * -1;
-        newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
-      } else if (
-        (newXPos <= player.xPos + player.width + tilesize)
-        && (player.xDir > 0)
-        && (newYPos >= screenYLimit - player.height)) {
-        newBall.yDir = newBall.yDir * -1;
-        newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
-      } 
+      }
       
       // X axis bouncing
       if (newXPos - newBall.width <= 0 || newXPos >= screenXLimit) {
