@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const _map = [[]];
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 200;
+  const gameSpeed = 100;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -12,10 +12,10 @@ const Game = ({width, height, tilesize}) => {
   const [ball, setBall] = useState({
     width: tilesize,
     height: tilesize,
-    xPos: tilesize,
-    xDir: 1,
-    yPos: tilesize,
-    yDir: 1
+    xPos: 0,
+    xDir: 0,
+    yPos: 0,
+    yDir: 0
   });
   const [player, setPlayer] = useState({
     width: tilesize * 5,
@@ -44,8 +44,10 @@ const Game = ({width, height, tilesize}) => {
     createMap();
 
     let {x, y} = calculatePlayerInitialPosition(width, height);
-
+    
     movePlayer(x, y);
+    
+    calculateBallInitialPosition(x, y);
 
     let t = 0;
     startTimer(t);
@@ -104,7 +106,7 @@ const Game = ({width, height, tilesize}) => {
         }
         
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
-        context.fillStyle = 'red';
+        context.fillStyle = 'black';
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
         showPause();
@@ -163,13 +165,25 @@ const Game = ({width, height, tilesize}) => {
   }
   
   const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
-    let y = (screenHeight * tilesize) - (tilesize * 2);
+    let y = (screenHeight * tilesize) - player.height;
     let x = (screenWidth * tilesize) / 2;
 
     x = x - (player.width / 2);
 
     return {x, y}
   }
+
+  const calculateBallInitialPosition = (playerX, playerY) => {
+    let newBall = {...ball};
+
+    newBall.xPos = playerX ;
+    newBall.yPos = playerY - player.height;
+    newBall.xDir = 1;
+    newBall.yDir = 1;
+
+    console.log(newBall.xPos, newBall.yPos);
+    setBall(newBall);
+  }  
 
   const handleEnterKey = () => {
     if (!gameStarted) {
