@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const _map = [[]];
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 50;
+  const gameSpeed = 200;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -60,7 +60,7 @@ const Game = ({width, height, tilesize}) => {
         let fill = false;
 
         if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {      
           fill = true;
         }
 
@@ -163,7 +163,7 @@ const Game = ({width, height, tilesize}) => {
   }
   
   const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
-    let y = (screenHeight * tilesize) - tilesize;
+    let y = (screenHeight * tilesize) - (tilesize * 2);
     let x = (screenWidth * tilesize) / 2;
 
     x = x - (player.width / 2);
@@ -257,9 +257,7 @@ const Game = ({width, height, tilesize}) => {
   }
   
   const handleHitPlayer = (newX, newY, newBall) => {
-    let screenYLimit = height * tilesize;
-
-    if ((newY >= screenYLimit - player.height)
+    if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
       newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
@@ -292,24 +290,156 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const handleHitBlock = (newX, newY, newBall) => {
-    let hitBlock = false;
-    var block = null;
-    let x = ((newX / tilesize) - 1) + newBall.xDir;
-    let y = ((newY / tilesize) - 1) + newBall.yDir;
+    var block, blockAux = null;
+    let x = null;
+    let y = null;
 
+    // hit left-bottom face
+    x = ((newX / tilesize));
+    y = ((newY / tilesize) - 1);
+    
+    block = _map[y][x];
+
+    x = ((newX / tilesize) - 1);
+    y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
+    
+    blockAux = _map[y][x];
+
+    if (block.fill && blockAux.fill) {
+      block.fill = false;
+      blockAux.fill = false;
+      newBall.xDir = ball.xDir * -1;
+      newBall.yDir = ball.yDir * -1;
+
+      return newBall;
+    }
+
+    // hit bottom-right face
+    x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
+    y = ((newY / tilesize) - 1);
+    
+    block = _map[y][x];
+
+    x = ((newX / tilesize) - 1);
+    y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
+    
+    blockAux = _map[y][x];
+
+    if (block.fill && blockAux.fill) {
+      block.fill = false;
+      blockAux.fill = false;
+      newBall.yDir = ball.yDir * -1;
+      newBall.xDir = ball.xDir * -1;
+
+      return newBall;
+    }
+
+    // hit right-top face
+    x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
+    y = ((newY / tilesize) - 1);
+    
+    block = _map[y][x];
+
+    x = ((newX / tilesize) - 1);
+    y = ((newY / tilesize));
+    
+    blockAux = _map[y][x];
+
+    if (block.fill && blockAux.fill) {
+      block.fill = false;
+      blockAux.fill = false;
+      newBall.yDir = ball.yDir * -1;
+      newBall.xDir = ball.xDir * -1;
+
+      return newBall;
+    }
+
+    // hit top-left face
+    x = ((newX / tilesize) - 1);
+    y = ((newY / tilesize));
+    
+    block = _map[y][x];
+
+    x = ((newX / tilesize));
+    y = ((newY / tilesize) - 1);
+    
+    blockAux = _map[y][x];
+
+    if (block.fill && blockAux.fill) {
+      block.fill = false;
+      blockAux.fill = false;
+      newBall.yDir = ball.yDir * -1;
+      newBall.xDir = ball.xDir * -1;
+
+      return newBall;
+    }    
+
+    // hit left face
+    x = ((newX / tilesize));
+    y = ((newY / tilesize) - 1);
+    
     block = _map[y][x];
 
     if (block.fill) {
-      console.log('hit corner');
-      hitBlock = true;
+      block.fill = false;      
+      newBall.xDir = ball.xDir * -1;
+
+      return newBall;
+    }
+
+    // hit right face
+    x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
+    y = ((newY / tilesize) - 1);
+    
+    block = _map[y][x];
+
+    if (block.fill) {
+      block.fill = false;      
+      newBall.xDir = ball.xDir * -1;
+
+      return newBall;
+    }
+
+    // hit top face
+    x = ((newX / tilesize) - 1);
+    y = ((newY / tilesize));
+    
+    block = _map[y][x];
+
+    if (block.fill) {
+      block.fill = false;      
+      newBall.yDir = ball.yDir * -1;
+
+      return newBall;
+    }
+    
+    // hit bottom face
+    x = ((newX / tilesize) - 1);
+    y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
+    
+    block = _map[y][x];
+
+    if (block.fill) {
+      block.fill = false;      
+      newBall.yDir = ball.yDir * -1;
+
+      return newBall;
+    }
+
+    // hit corner
+    x = ((newX / tilesize) - 1) + newBall.xDir;
+    y = ((newY / tilesize) - 1) + newBall.yDir;
+    
+    block = _map[y][x];
+
+    if (block.fill) {
+      block.fill = false;
       
       newBall.xDir = ball.xDir * -1;
       newBall.yDir = ball.yDir * -1;
-    }
 
-    if (hitBlock) {
-      _map[y][x].fill = false;
-    }
+      return newBall;
+    }    
 
     return newBall;
   }
