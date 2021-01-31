@@ -62,8 +62,8 @@ const Game = ({width, height, tilesize}) => {
         let fill = false;
 
         if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {      
-          fill = true;
+        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {     
+          fill = Math.round(Math.random()); 
         }
 
         _map[i].push({
@@ -99,7 +99,7 @@ const Game = ({width, height, tilesize}) => {
           for (let j = 0; j < height * tilesize; j++) {
             let block = _map[i][j];
 
-            if (block.fill) {
+            if (block && block.fill) {
               context.fillRect(block.xPos, block.yPos, tilesize, tilesize);
             }
           }
@@ -181,7 +181,6 @@ const Game = ({width, height, tilesize}) => {
     newBall.xDir = 1;
     newBall.yDir = 1;
 
-    console.log(newBall.xPos, newBall.yPos);
     setBall(newBall);
   }  
 
@@ -319,7 +318,7 @@ const Game = ({width, height, tilesize}) => {
     
     blockAux = _map[y][x];
 
-    if (block.fill && blockAux.fill) {
+    if ((block && block.fill) && (blockAux && blockAux.fill)) {
       block.fill = false;
       blockAux.fill = false;
       newBall.xDir = ball.xDir * -1;
@@ -339,7 +338,7 @@ const Game = ({width, height, tilesize}) => {
     
     blockAux = _map[y][x];
 
-    if (block.fill && blockAux.fill) {
+    if ((block && block.fill) && (blockAux && blockAux.fill)) {
       block.fill = false;
       blockAux.fill = false;
       newBall.yDir = ball.yDir * -1;
@@ -359,7 +358,7 @@ const Game = ({width, height, tilesize}) => {
     
     blockAux = _map[y][x];
 
-    if (block.fill && blockAux.fill) {
+    if ((block && block.fill) && (blockAux && blockAux.fill)) {
       block.fill = false;
       blockAux.fill = false;
       newBall.yDir = ball.yDir * -1;
@@ -379,7 +378,7 @@ const Game = ({width, height, tilesize}) => {
     
     blockAux = _map[y][x];
 
-    if (block.fill && blockAux.fill) {
+    if ((block && block.fill) && (blockAux && blockAux.fill)) {
       block.fill = false;
       blockAux.fill = false;
       newBall.yDir = ball.yDir * -1;
@@ -394,7 +393,7 @@ const Game = ({width, height, tilesize}) => {
     
     block = _map[y][x];
 
-    if (block.fill) {
+    if (block && block.fill) {
       block.fill = false;      
       newBall.xDir = ball.xDir * -1;
 
@@ -407,7 +406,7 @@ const Game = ({width, height, tilesize}) => {
     
     block = _map[y][x];
 
-    if (block.fill) {
+    if (block && block.fill) {
       block.fill = false;      
       newBall.xDir = ball.xDir * -1;
 
@@ -420,7 +419,7 @@ const Game = ({width, height, tilesize}) => {
     
     block = _map[y][x];
 
-    if (block.fill) {
+    if (block && block.fill) {
       block.fill = false;      
       newBall.yDir = ball.yDir * -1;
 
@@ -433,7 +432,7 @@ const Game = ({width, height, tilesize}) => {
     
     block = _map[y][x];
 
-    if (block.fill) {
+    if (block && block.fill) {
       block.fill = false;      
       newBall.yDir = ball.yDir * -1;
 
@@ -446,7 +445,7 @@ const Game = ({width, height, tilesize}) => {
     
     block = _map[y][x];
 
-    if (block.fill) {
+    if (block && block.fill) {
       block.fill = false;
       
       newBall.xDir = ball.xDir * -1;
