@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-const _map = [];
+const _map = [[]];
 
 const Game = ({width, height, tilesize}) => {
-  const gameSpeed = 150;
+  const gameSpeed = 50;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -59,20 +59,8 @@ const Game = ({width, height, tilesize}) => {
       for (let j = 0; j <= height * tilesize; j++) {
         let fill = false;
 
-        // if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        // && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
-        if (
-          // (j === 2 && i === 3)
-          (j === 0 && i === 0)
-          || (j === 1 && i === 1)
-          || (j === 3 && i === 3)
-          // || (j === 1 && i === 8)
-          // || (j === 3 && i === 4)
-          // || (j === 5 && i === 1)
-          // || (j === 4 && i === 1)
-          || (j === 2 && i === 14)
-          || (j === 4 && i === 4)
-          ) {
+        if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
+        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
           fill = true;
         }
 
@@ -116,6 +104,7 @@ const Game = ({width, height, tilesize}) => {
         }
         
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
+        context.fillStyle = 'red';
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
         showPause();
@@ -253,7 +242,7 @@ const Game = ({width, height, tilesize}) => {
       newBall = handleHitWall(newXPos, newYPos, newBall);
 
       if (!ball.isDead) {
-        // newBall = handleHitBlock(newXPos, newYPos, newBall);
+        newBall = handleHitBlock(newXPos, newYPos, newBall);
       } else {
         setGameOver(true);
 
@@ -294,7 +283,8 @@ const Game = ({width, height, tilesize}) => {
     }
     
     // hit the floor, GAME OVER
-    if (newY === (screenYLimit - newBall.height) && newBall.yDir > 0) {
+    if ((newY === (screenYLimit - newBall.height))
+      && newBall.yDir > 0) {
       newBall.isDead = true;
     }
 
@@ -302,34 +292,23 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const handleHitBlock = (newX, newY, newBall) => {
-    let loop = true;
     let hitBlock = false;
+    var block = null;
+    let x = ((newX / tilesize) - 1) + newBall.xDir;
+    let y = ((newY / tilesize) - 1) + newBall.yDir;
 
-    for (let i = 0; i < width * tilesize; i++) {
-      if (loop) {
-        for (let j = 0; j < height * tilesize; j++) {
-          let block = _map[i][j];
-          
-          if (block.fill) {
-            // hit corner
-            if (newX === block.xPos && newY === block.yPos) {
-              newBall.xDir = ball.xDir * -1;
-              newBall.yDir = ball.yDir * -1;
+    block = _map[y][x];
 
+    if (block.fill) {
+      console.log('hit corner');
+      hitBlock = true;
+      
+      newBall.xDir = ball.xDir * -1;
+      newBall.yDir = ball.yDir * -1;
+    }
 
-              console.log('hit corner');
-
-              hitBlock = true;
-            }
-
-            if (hitBlock) {
-              _map[i][j].fill = false;
-              loop = false;
-              break;
-            }
-          }
-        }
-      } else break;
+    if (hitBlock) {
+      _map[y][x].fill = false;
     }
 
     return newBall;
