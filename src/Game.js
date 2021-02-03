@@ -123,18 +123,43 @@ const Game = ({width, height, tilesize}) => {
     const context = gameScreen.current.getContext('2d');
     
     context.clearRect(0, 0, width * tilesize, height * tilesize);
-    
-    context.fillStyle = 'black';
-    context.font = 'bold 70px EarlyGameboy';
-    context.textBaseline = 'middle';
-    context.textAlign = 'center';
-    context.fillText('PONG', ((width * tilesize) / 2), ((height * tilesize) / 3));
 
     context.fillStyle = 'black';
-    context.font = 'bold 19px EarlyGameboy';
+    context.font = 'bold 28px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
-    context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
+    context.fillText('THIS IS A',
+        ((width * tilesize) / 2),
+        ((height * tilesize) / 4.4)
+      );
+
+    context.fillStyle = 'black';
+    context.font = 'bold 58px EarlyGameboy';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('PONG.',
+        ((width * tilesize) / 2) + tilesize,
+        ((height * tilesize) / 3)
+      );
+
+    let blink = (timer % 6 == 0) ? false : true;
+    
+    if (blink) {
+      context.fillStyle = 'black';
+      context.font = 'bold 17px EarlyGameboy';
+      context.textBaseline = 'middle';
+      context.textAlign = 'center';
+      context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
+    }
+
+    context.fillStyle = 'black';
+    context.font = 'bold 11px EarlyGameboy';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('made with react',
+        ((width * tilesize) / 2),
+        ((height * tilesize) - tilesize / 2)
+      );
   }
 
   const showPause = () => {
@@ -191,7 +216,7 @@ const Game = ({width, height, tilesize}) => {
     context.font = 'bold 19px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
-    context.fillText('GAME OVER',
+    context.fillText('YOU LOSE.',
         ((width * tilesize) / 2),
         ((height * tilesize) / 2) + 20
       );
@@ -227,7 +252,7 @@ const Game = ({width, height, tilesize}) => {
   const calculateBallInitialPosition = (playerX, playerY) => {
     let newBall = {...ball};
 
-    newBall.xPos = playerX ;
+    newBall.xPos = playerX + player.width;
     newBall.yPos = playerY - player.height;
     newBall.xDir = 1;
     newBall.yDir = 1;
@@ -324,7 +349,7 @@ const Game = ({width, height, tilesize}) => {
     if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
-      newBall.xDir = newBall.yDir * (player.xDir !== 0) ? player.xDir : 1;
+      newBall.xDir = newBall.xDir * (player.xDir !== 0) ? player.xDir : 1;
     }
 
     return newBall;
