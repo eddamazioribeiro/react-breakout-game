@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 const _map = [[]];
+var _score = 0;
 
 const Game = ({width, height, tilesize}) => {
   const gameSpeed = 100;
@@ -84,14 +85,14 @@ const Game = ({width, height, tilesize}) => {
   const updateGame = () => {
     if (gameStarted) {
       if (gameOver) {
-        showGameOver();
+        handleGameOver();
 
         return;
       }
 
       if (!gamePaused) {
         const context = gameScreen.current.getContext('2d');
-          
+
         context.clearRect(0, 0, width * tilesize, height * tilesize);
         context.fillStyle = 'black';
 
@@ -104,6 +105,8 @@ const Game = ({width, height, tilesize}) => {
             }
           }
         }
+        
+        showScore(context, _score);
         
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
         context.fillStyle = 'black';
@@ -147,6 +150,40 @@ const Game = ({width, height, tilesize}) => {
       );
   }
 
+  const showScore = (context, score) => {
+    let strScore = returnScoreToPrint(score);
+
+    context.fillStyle = 'black';
+    context.font = 'bold 13px EarlyGameboy';
+    context.textBaseline = 'left';
+    context.textAlign = 'left';
+    context.fillText('SCORE  ',
+        ((width * tilesize) / 2),
+        tilesize / 2
+      );
+    context.textBaseline = 'left';
+    context.textAlign = 'right';
+    context.fillText(strScore,
+        ((width * tilesize)) - (tilesize / 2),
+        tilesize / 2
+      );      
+  }
+
+  const returnScoreToPrint = (score) => {
+    let scoreAux = score.toString().split('');
+    let length = scoreAux.length;
+
+    if (length <= 7) {
+      let zerosQty = 7 - length;
+
+      for(let i = 0; i < zerosQty; i++) {
+        scoreAux.unshift('0');
+      }
+    }
+    
+    return scoreAux.join('');
+  }
+
   const showGameOver = () => {
     const context = gameScreen.current.getContext('2d');
 
@@ -160,8 +197,22 @@ const Game = ({width, height, tilesize}) => {
       );
   }  
 
+  const handleGameOver = () => {
+    showGameOver();
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 2200);
+  }
+
   const pauseGame = (pause) => {
     setGamePaused(pause);
+  }
+
+  const addPointsToScore = (points) => {
+    _score += points;
+
+    return _score;
   }
   
   const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
@@ -170,7 +221,7 @@ const Game = ({width, height, tilesize}) => {
 
     x = x - (player.width / 2);
 
-    return {x, y}
+    return {x, y};
   }
 
   const calculateBallInitialPosition = (playerX, playerY) => {
@@ -324,6 +375,8 @@ const Game = ({width, height, tilesize}) => {
       newBall.xDir = ball.xDir * -1;
       newBall.yDir = ball.yDir * -1;
 
+      addPointsToScore(20);
+
       return newBall;
     }
 
@@ -343,6 +396,8 @@ const Game = ({width, height, tilesize}) => {
       blockAux.fill = false;
       newBall.yDir = ball.yDir * -1;
       newBall.xDir = ball.xDir * -1;
+
+      addPointsToScore(20);
 
       return newBall;
     }
@@ -364,6 +419,8 @@ const Game = ({width, height, tilesize}) => {
       newBall.yDir = ball.yDir * -1;
       newBall.xDir = ball.xDir * -1;
 
+      addPointsToScore(20);
+
       return newBall;
     }
 
@@ -384,6 +441,8 @@ const Game = ({width, height, tilesize}) => {
       newBall.yDir = ball.yDir * -1;
       newBall.xDir = ball.xDir * -1;
 
+      addPointsToScore(20);
+
       return newBall;
     }    
 
@@ -396,6 +455,8 @@ const Game = ({width, height, tilesize}) => {
     if (block && block.fill) {
       block.fill = false;      
       newBall.xDir = ball.xDir * -1;
+
+      addPointsToScore(10);
 
       return newBall;
     }
@@ -410,6 +471,8 @@ const Game = ({width, height, tilesize}) => {
       block.fill = false;      
       newBall.xDir = ball.xDir * -1;
 
+      addPointsToScore(10);
+
       return newBall;
     }
 
@@ -423,6 +486,8 @@ const Game = ({width, height, tilesize}) => {
       block.fill = false;      
       newBall.yDir = ball.yDir * -1;
 
+      addPointsToScore(10);
+
       return newBall;
     }
     
@@ -435,6 +500,8 @@ const Game = ({width, height, tilesize}) => {
     if (block && block.fill) {
       block.fill = false;      
       newBall.yDir = ball.yDir * -1;
+
+      addPointsToScore(10);
 
       return newBall;
     }
@@ -450,6 +517,8 @@ const Game = ({width, height, tilesize}) => {
       
       newBall.xDir = ball.xDir * -1;
       newBall.yDir = ball.yDir * -1;
+
+      addPointsToScore(10);
 
       return newBall;
     }    

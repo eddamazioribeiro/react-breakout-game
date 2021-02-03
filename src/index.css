@@ -1,7 +1,7 @@
 /* import font */
 @font-face {
   font-family: 'EarlyGameboy';
-  src: url('./assets/font/EarlyGameBoy.ttf') format('truetype')
+  src: local('EarlyGameboy'), url('./assets/font/EarlyGameBoy.ttf') format('truetype')
 }
 
 body {
