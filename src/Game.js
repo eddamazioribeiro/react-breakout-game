@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 const _map = [[]];
 var _score = 0;
 var _keyState = {};
+var _ticker = null;
 
 const Game = ({width, height, tilesize}) => {
   let _iniX = ((width * tilesize) / 2) - ((tilesize * 5) / 2);
@@ -49,10 +50,34 @@ const Game = ({width, height, tilesize}) => {
 
     createMap();
 
-    calculateBallInitialPosition(_iniX, _iniY);
+    clearPlayer(_iniX, _iniY);
+    clearBall(_iniX, _iniY);
 
     let t = 0;
     startTimer(t);
+  }
+
+  const clearPlayer = (x, y) => {
+    let newPlayer = {...player};
+
+    newPlayer.xPos = x;
+    newPlayer.yPos = y;
+    newPlayer.xDir = 0;
+    newPlayer.yDir = 0;
+
+    setPlayer(newPlayer);
+  }
+
+  const clearBall = (x, y) => {
+    let newBall = {...ball};
+
+    newBall.xPos = x;
+    newBall.yPos = y - (2 * player.height);
+    newBall.xDir = -1;
+    newBall.yDir = -1;
+    newBall.isDead = false;
+
+    setBall(newBall);
   }
 
   const createMap = () => {
@@ -78,8 +103,8 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const startTimer = (t) => {
-    setInterval(() => {
-      if (!gameOver) setTimer(t++);
+    _ticker = setInterval(() => {
+      setTimer(t++);
     }, gameSpeed);
   }
 
@@ -239,8 +264,14 @@ const Game = ({width, height, tilesize}) => {
     showGameOver();
 
     setTimeout(() => {
-      window.location.reload();
-    }, 2200);
+      clearInterval(_ticker);
+      
+      setGameOver(false);
+      setGamePaused(false);
+      setGameStarted(false);
+
+      init();
+    }, 2000);
   }
 
   const pauseGame = (pause) => {
@@ -253,15 +284,8 @@ const Game = ({width, height, tilesize}) => {
     return _score;
   }
 
-  const calculateBallInitialPosition = (playerX, playerY) => {
-    let newBall = {...ball};
+  const calculateBallInitialPosition = (x, y) => {
 
-    newBall.xPos = playerX;
-    newBall.yPos = playerY - player.height;
-    newBall.xDir = -1;
-    newBall.yDir = 1;
-
-    setBall(newBall);
   }
 
   const handleEnterKey = () => {
@@ -357,6 +381,8 @@ const Game = ({width, height, tilesize}) => {
     if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
+
+      console.log('hit player');
 
       const newXDir = () => {
         if (_keyState[37]) return -1;
