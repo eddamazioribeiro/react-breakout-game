@@ -1,7 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-const _map = [[]];
+var _map = [[]];
 var _score = 0;
+var _highScore = 0;
 var _keyState = {};
 var _ticker = null;
 
@@ -48,6 +49,8 @@ const Game = ({width, height, tilesize}) => {
     bindEvent('keyup', handleKeyUp);
     bindEvent('keydown', handleKeyDown);
 
+    _score = 0;
+
     createMap();
 
     clearPlayer(_iniX, _iniY);
@@ -81,6 +84,8 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const createMap = () => {
+    _map = [[]];
+    
     for (let i = 0; i <= width * tilesize; i++) {
 
       _map.push([]);
@@ -134,11 +139,11 @@ const Game = ({width, height, tilesize}) => {
           }
         }
 
-        showScore(context, _score);
-
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
         context.fillStyle = player.color;
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
+
+        showScore(context, _score);
       } else {
         showPause();
       }
@@ -149,9 +154,9 @@ const Game = ({width, height, tilesize}) => {
 
   const showTitleScreen = () => {
     const context = gameScreen.current.getContext('2d');
-
+    
     context.clearRect(0, 0, width * tilesize, height * tilesize);
-
+    
     context.fillStyle = 'black';
     context.font = 'bold 24px EarlyGameboy';
     context.textBaseline = 'middle';
@@ -180,6 +185,8 @@ const Game = ({width, height, tilesize}) => {
     );
 
     let blink = (timer % 6 == 0) ? false : true;
+
+    showHighScore(context, blink, _highScore);
 
     if (blink) {
       context.fillStyle = 'black';
@@ -213,6 +220,10 @@ const Game = ({width, height, tilesize}) => {
       );
   }
 
+  const setHighScore = (currScore) => {
+    if (currScore > _highScore) _highScore = currScore;
+  }
+
   const showScore = (context, score) => {
     let strScore = returnScoreToPrint(score);
 
@@ -230,6 +241,28 @@ const Game = ({width, height, tilesize}) => {
         ((width * tilesize)) - (tilesize / 2),
         tilesize / 2
       );
+  }
+
+  const showHighScore = (context, blink, _highScore) => {
+    let strScore = returnScoreToPrint(_highScore);
+
+    context.fillStyle = 'black';
+    context.font = 'bold 13px EarlyGameboy';
+    context.textBaseline = 'left';
+    context.textAlign = 'left';
+    context.fillText('HIGH-SCORE  ',
+        ((width * tilesize) / 3.2),
+        tilesize / 2
+      );
+
+    if (blink) {
+      context.textBaseline = 'left';
+      context.textAlign = 'right';
+      context.fillText(strScore,
+          ((width * tilesize)) - (tilesize / 2),
+          tilesize / 2
+        );
+    }
   }
 
   const returnScoreToPrint = (score) => {
@@ -261,6 +294,8 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const handleGameOver = () => {
+    setHighScore(_score);
+
     showGameOver();
 
     setTimeout(() => {
@@ -271,7 +306,7 @@ const Game = ({width, height, tilesize}) => {
       setGameStarted(false);
 
       init();
-    }, 2000);
+    }, 1000);
   }
 
   const pauseGame = (pause) => {
@@ -282,10 +317,6 @@ const Game = ({width, height, tilesize}) => {
     _score += points;
 
     return _score;
-  }
-
-  const calculateBallInitialPosition = (x, y) => {
-
   }
 
   const handleEnterKey = () => {
@@ -381,8 +412,6 @@ const Game = ({width, height, tilesize}) => {
     if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
-
-      console.log('hit player');
 
       const newXDir = () => {
         if (_keyState[37]) return -1;
