@@ -146,7 +146,7 @@ const Game = ({width, height, tilesize}) => {
       );
 
     context.fillStyle = 'black';
-    context.font = 'bold 48px EarlyGameboy';
+    context.font = 'bold 50px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('OUT.',
@@ -161,7 +161,8 @@ const Game = ({width, height, tilesize}) => {
       context.font = 'bold 17px EarlyGameboy';
       context.textBaseline = 'middle';
       context.textAlign = 'center';
-      context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 1.8));
+      context.fillText('PRESS', ((width * tilesize) / 2), ((height * tilesize) / 1.7));
+      context.fillText('ENTER', ((width * tilesize) / 2), ((height * tilesize) / 1.6));
     }
 
     context.fillStyle = 'black';
@@ -255,9 +256,9 @@ const Game = ({width, height, tilesize}) => {
   const calculateBallInitialPosition = (playerX, playerY) => {
     let newBall = {...ball};
 
-    newBall.xPos = playerX + player.width;
+    newBall.xPos = playerX;
     newBall.yPos = playerY - player.height;
-    newBall.xDir = 1;
+    newBall.xDir = -1;
     newBall.yDir = 1;
 
     setBall(newBall);
@@ -356,7 +357,14 @@ const Game = ({width, height, tilesize}) => {
     if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
-      newBall.xDir = newBall.xDir * (player.xDir !== 0) ? player.xDir : 1;
+
+      const newXDir = () => {
+        if (_keyState[37]) return -1;
+        else if (_keyState[39]) return 1
+        else return (newBall.xDir);
+      }
+
+      newBall.xDir = newXDir();
     }
 
     return newBall;
