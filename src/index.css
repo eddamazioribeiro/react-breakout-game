@@ -4,8 +4,10 @@
   src: local('EarlyGameboy'), url('./assets/font/EarlyGameBoy.ttf') format('truetype')
 }
 
-body {
+.game-area {
   margin: 0;
+  font-size: 10px;
+  font-family: EarlyGameboy;
 }
 
 code {
@@ -16,4 +18,31 @@ code {
 .main {
   margin-left: 5px;
   font-family: EarlyGameboy;
+}
+
+a {
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  font-family: arial, "lucida console", sans-serif;
+}
+
+/* unvisited link */
+a:link {
+  color: red;
+}
+
+/* visited link */
+a:visited {
+  color: grey;
+}
+
+/* mouse over link */
+a:hover {
+  color: gray;
+}
+
+/* selected link */
+a:active {
+  color: red;
 }

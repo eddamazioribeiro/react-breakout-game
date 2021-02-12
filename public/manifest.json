@@ -1,6 +1,6 @@
 {
-  "short_name": "React Pong",
-  "name": "Pong Game powered by React",
+  "short_name": "React Breakout",
+  "name": "Breakout Game powered by React",
   "icons": [],
   "start_url": ".",
   "display": "standalone",

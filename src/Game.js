@@ -623,7 +623,7 @@ const Game = ({width, height, tilesize}) => {
 
   return(
     <>
-      <div className="main">
+      <div className="game-area">
         <canvas
           ref={gameScreen}
           width={width * tilesize}
@@ -632,6 +632,26 @@ const Game = ({width, height, tilesize}) => {
             border: '1px solid black',
             background: 'DimGrey'}}>
         </canvas>
+      </div>
+      <div className="contact">
+        <div className="row">
+          <span>
+            <a href="https://www.linkedin.com/in/eduardo-damazio-ribeiro/"
+              target="_blank">
+            <i className="icon fa fa-linkedin-square" style={{fontSize: '22px'}}></i>&nbsp;
+              Eduardo Ribeiro
+            </a>
+          </span>
+        </div>
+        <div className="row">
+          <span>
+            <a href="https://github.com/eddamazioribeiro/react-breakout-game"
+              target="_blank">
+            <i className="icon fa fa-git-square" style={{fontSize: '22px'}}></i>&nbsp;
+              /react-breakout-game
+            </a>
+          </span>
+        </div>
       </div>
     </>
   );
