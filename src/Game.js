@@ -128,7 +128,7 @@ const Game = ({width, height, tilesize}) => {
     context.clearRect(0, 0, width * tilesize, height * tilesize);
 
     context.fillStyle = 'black';
-    context.font = 'bold 28px EarlyGameboy';
+    context.font = 'bold 24px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.fillText('THIS IS A',
@@ -137,13 +137,22 @@ const Game = ({width, height, tilesize}) => {
       );
 
     context.fillStyle = 'black';
-    context.font = 'bold 58px EarlyGameboy';
+    context.font = 'bold 42px EarlyGameboy';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
-    context.fillText('PONG.',
-        ((width * tilesize) / 2) + tilesize,
+    context.fillText('BREAK',
+        ((width * tilesize) / 2),
         ((height * tilesize) / 3)
       );
+
+    context.fillStyle = 'black';
+    context.font = 'bold 48px EarlyGameboy';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('OUT.',
+      ((width * tilesize) / 2) + tilesize,
+      ((height * tilesize) / 2.3)
+    );
 
     let blink = (timer % 6 == 0) ? false : true;
 
@@ -152,7 +161,7 @@ const Game = ({width, height, tilesize}) => {
       context.font = 'bold 17px EarlyGameboy';
       context.textBaseline = 'middle';
       context.textAlign = 'center';
-      context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 2));
+      context.fillText('PRESS ENTER', ((width * tilesize) / 2), ((height * tilesize) / 1.8));
     }
 
     context.fillStyle = 'black';
