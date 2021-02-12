@@ -2,8 +2,12 @@ import React, {useEffect, useRef, useState} from 'react';
 
 const _map = [[]];
 var _score = 0;
+var _keyState = {};
 
 const Game = ({width, height, tilesize}) => {
+  let _iniX = ((width * tilesize) / 2) - ((tilesize * 5) / 2);
+  let _iniY = (height * tilesize) - tilesize;
+  
   const gameSpeed = 100;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
@@ -19,36 +23,33 @@ const Game = ({width, height, tilesize}) => {
     yDir: 0
   });
   const [player, setPlayer] = useState({
+    color: 'red',
     width: tilesize * 5,
     height: tilesize,
-    xPos: 0,
+    xPos: _iniX,
     xDir: 0,
-    yPos: 0
+    yPos: _iniY
   });
-  
+
   useEffect(() => {
     init();
   }, []);
-  
+
   useEffect(() => {
     moveBall(1 * tilesize, 1 * tilesize);
   }, [timer]);
 
   useEffect(() => {
     updateGame();
-    bindEvent('keydown', handleInput);
   }, [timer]);
 
   const init = () => {
-    bindEvent('keydown', handleInput);
+    bindEvent('keyup', handleKeyUp);
+    bindEvent('keydown', handleKeyDown);
 
     createMap();
 
-    let {x, y} = calculatePlayerInitialPosition(width, height);
-    
-    movePlayer(x, y);
-    
-    calculateBallInitialPosition(x, y);
+    calculateBallInitialPosition(_iniX, _iniY);
 
     let t = 0;
     startTimer(t);
@@ -63,8 +64,8 @@ const Game = ({width, height, tilesize}) => {
         let fill = false;
 
         if ((j * tilesize >= 3 * tilesize && j * tilesize < (width - 3) * tilesize)
-        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {     
-          fill = Math.round(Math.random()); 
+        && (i * tilesize >= 2 * tilesize && i * tilesize < ((height / 2) - 2) * tilesize)) {
+          fill = Math.round(Math.random());
         }
 
         _map[i].push({
@@ -81,8 +82,10 @@ const Game = ({width, height, tilesize}) => {
       if (!gameOver) setTimer(t++);
     }, gameSpeed);
   }
- 
+
   const updateGame = () => {
+    handleInput();
+
     if (gameStarted) {
       if (gameOver) {
         handleGameOver();
@@ -105,11 +108,11 @@ const Game = ({width, height, tilesize}) => {
             }
           }
         }
-        
+
         showScore(context, _score);
-        
+
         context.fillRect(player.xPos, player.yPos, player.width, player.height);
-        context.fillStyle = 'black';
+        context.fillStyle = player.color;
         context.fillRect(ball.xPos, ball.yPos, ball.width, ball.height);
       } else {
         showPause();
@@ -117,11 +120,11 @@ const Game = ({width, height, tilesize}) => {
     } else {
       showTitleScreen();
     }
-  } 
+  }
 
   const showTitleScreen = () => {
     const context = gameScreen.current.getContext('2d');
-    
+
     context.clearRect(0, 0, width * tilesize, height * tilesize);
 
     context.fillStyle = 'black';
@@ -143,7 +146,7 @@ const Game = ({width, height, tilesize}) => {
       );
 
     let blink = (timer % 6 == 0) ? false : true;
-    
+
     if (blink) {
       context.fillStyle = 'black';
       context.font = 'bold 17px EarlyGameboy';
@@ -191,7 +194,7 @@ const Game = ({width, height, tilesize}) => {
     context.fillText(strScore,
         ((width * tilesize)) - (tilesize / 2),
         tilesize / 2
-      );      
+      );
   }
 
   const returnScoreToPrint = (score) => {
@@ -205,7 +208,7 @@ const Game = ({width, height, tilesize}) => {
         scoreAux.unshift('0');
       }
     }
-    
+
     return scoreAux.join('');
   }
 
@@ -220,7 +223,7 @@ const Game = ({width, height, tilesize}) => {
         ((width * tilesize) / 2),
         ((height * tilesize) / 2) + 20
       );
-  }  
+  }
 
   const handleGameOver = () => {
     showGameOver();
@@ -239,15 +242,6 @@ const Game = ({width, height, tilesize}) => {
 
     return _score;
   }
-  
-  const calculatePlayerInitialPosition = (screenWidth, screenHeight) => {
-    let y = (screenHeight * tilesize) - player.height;
-    let x = (screenWidth * tilesize) / 2;
-
-    x = x - (player.width / 2);
-
-    return {x, y};
-  }
 
   const calculateBallInitialPosition = (playerX, playerY) => {
     let newBall = {...ball};
@@ -258,7 +252,7 @@ const Game = ({width, height, tilesize}) => {
     newBall.yDir = 1;
 
     setBall(newBall);
-  }  
+  }
 
   const handleEnterKey = () => {
     if (!gameStarted) {
@@ -268,31 +262,35 @@ const Game = ({width, height, tilesize}) => {
     }
   }
 
-  const handleInput = e => {
-    e.preventDefault();
+  const handleInput = () => {
+    let x = 0, y = 0;
 
-    let keyPressed = false;
-
-    switch (e.keyCode) {
-      case 13: // enter
-        handleEnterKey();
-        keyPressed = true;
-        break;
-      case 37: // left arrow
-        movePlayer(-1 * tilesize, 0 * tilesize);
-        keyPressed = true;
-        break;
-      case 39: // right arrow
-        movePlayer(1 * tilesize, 0 * tilesize);
-        keyPressed = true;
-        break;
-      default:
-        break;
+    // enter
+    if (_keyState[13]) {
+      handleEnterKey();
+    }
+    // left arrow
+    if (_keyState[37]) {
+      x += -1;
+      y += 0;
+    }
+    // right arrow
+    if (_keyState[39]) {
+      x += 1;
+      y += 0;
     }
 
-    if (keyPressed) unbindEvent('keydown', handleInput);
+    movePlayer(x * tilesize, y * tilesize);
+  };
+
+  const handleKeyDown = e => {
+    _keyState[e.keyCode || e.which] = true;
   }
-  
+
+  const handleKeyUp = e => {
+    _keyState[e.keyCode || e.which] = false;
+  }
+
   const bindEvent = (event, handleEvent) => {
     document.addEventListener(event, handleEvent);
   }
@@ -305,19 +303,19 @@ const Game = ({width, height, tilesize}) => {
     let newPlayer = {...player};
     let screeLimit = width * tilesize;
     let newXPos = newPlayer.xPos + x;
-    
+
     newPlayer.xDir = (x > 0) ? 1 : -1;
 
-    if (!gamePaused) {  
+    if (!gamePaused) {
       if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit) {
         newPlayer.xPos = player.xPos;
         newPlayer.yPos = player.yPos;
       } else {
         newPlayer.xPos += x;
         newPlayer.yPos += y;
-      }  
+      }
     }
-    
+
     setPlayer(newPlayer);
   }
 
@@ -344,7 +342,7 @@ const Game = ({width, height, tilesize}) => {
       setBall(newBall);
     }
   }
-  
+
   const handleHitPlayer = (newX, newY, newBall) => {
     if ((newY >= player.yPos)
       &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
@@ -368,7 +366,7 @@ const Game = ({width, height, tilesize}) => {
     if (newY - newBall.height <= 0) {
       newBall.yDir = newBall.yDir * -1;
     }
-    
+
     // hit the floor, GAME OVER
     if ((newY === (screenYLimit - newBall.height))
       && newBall.yDir > 0) {
@@ -386,12 +384,12 @@ const Game = ({width, height, tilesize}) => {
     // hit left-bottom face
     x = ((newX / tilesize));
     y = ((newY / tilesize) - 1);
-    
+
     block = _map[y][x];
 
     x = ((newX / tilesize) - 1);
     y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
-    
+
     blockAux = _map[y][x];
 
     if ((block && block.fill) && (blockAux && blockAux.fill)) {
@@ -408,12 +406,12 @@ const Game = ({width, height, tilesize}) => {
     // hit bottom-right face
     x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
     y = ((newY / tilesize) - 1);
-    
+
     block = _map[y][x];
 
     x = ((newX / tilesize) - 1);
     y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
-    
+
     blockAux = _map[y][x];
 
     if ((block && block.fill) && (blockAux && blockAux.fill)) {
@@ -430,12 +428,12 @@ const Game = ({width, height, tilesize}) => {
     // hit right-top face
     x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
     y = ((newY / tilesize) - 1);
-    
+
     block = _map[y][x];
 
     x = ((newX / tilesize) - 1);
     y = ((newY / tilesize));
-    
+
     blockAux = _map[y][x];
 
     if ((block && block.fill) && (blockAux && blockAux.fill)) {
@@ -452,12 +450,12 @@ const Game = ({width, height, tilesize}) => {
     // hit top-left face
     x = ((newX / tilesize) - 1);
     y = ((newY / tilesize));
-    
+
     block = _map[y][x];
 
     x = ((newX / tilesize));
     y = ((newY / tilesize) - 1);
-    
+
     blockAux = _map[y][x];
 
     if ((block && block.fill) && (blockAux && blockAux.fill)) {
@@ -469,16 +467,16 @@ const Game = ({width, height, tilesize}) => {
       addPointsToScore(20);
 
       return newBall;
-    }    
+    }
 
     // hit left face
     x = ((newX / tilesize));
     y = ((newY / tilesize) - 1);
-    
+
     block = _map[y][x];
 
     if (block && block.fill) {
-      block.fill = false;      
+      block.fill = false;
       newBall.xDir = ball.xDir * -1;
 
       addPointsToScore(10);
@@ -489,11 +487,11 @@ const Game = ({width, height, tilesize}) => {
     // hit right face
     x = (((newX / tilesize) - 2)) >= 0 ? (((newX / tilesize) - 2)) : 0;
     y = ((newY / tilesize) - 1);
-    
+
     block = _map[y][x];
 
     if (block && block.fill) {
-      block.fill = false;      
+      block.fill = false;
       newBall.xDir = ball.xDir * -1;
 
       addPointsToScore(10);
@@ -504,26 +502,26 @@ const Game = ({width, height, tilesize}) => {
     // hit top face
     x = ((newX / tilesize) - 1);
     y = ((newY / tilesize));
-    
+
     block = _map[y][x];
 
     if (block && block.fill) {
-      block.fill = false;      
+      block.fill = false;
       newBall.yDir = ball.yDir * -1;
 
       addPointsToScore(10);
 
       return newBall;
     }
-    
+
     // hit bottom face
     x = ((newX / tilesize) - 1);
     y = (((newY / tilesize) - 2)) >= 0 ? (((newY / tilesize) - 2)) : 0;
-    
+
     block = _map[y][x];
 
     if (block && block.fill) {
-      block.fill = false;      
+      block.fill = false;
       newBall.yDir = ball.yDir * -1;
 
       addPointsToScore(10);
@@ -534,19 +532,19 @@ const Game = ({width, height, tilesize}) => {
     // hit corner
     x = ((newX / tilesize) - 1) + newBall.xDir;
     y = ((newY / tilesize) - 1) + newBall.yDir;
-    
+
     block = _map[y][x];
 
     if (block && block.fill) {
       block.fill = false;
-      
+
       newBall.xDir = ball.xDir * -1;
       newBall.yDir = ball.yDir * -1;
 
       addPointsToScore(10);
 
       return newBall;
-    }    
+    }
 
     return newBall;
   }
