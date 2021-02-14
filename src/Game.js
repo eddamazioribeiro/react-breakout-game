@@ -319,8 +319,6 @@ const Game = ({width, height, tilesize}) => {
 
     clearInterval(_ticker);
 
-    _level++;
-
     setTimeout(() => {
       setGameOver(false);
       setGamePaused(false);
@@ -392,7 +390,7 @@ const Game = ({width, height, tilesize}) => {
 
     newPlayer.xDir = (x > 0) ? 1 : -1;
 
-    if (!gamePaused) {
+    if (!gamePaused && gameStarted) {
       if (newXPos < 0 || ((newXPos) + newPlayer.width) > screeLimit) {
         newPlayer.xPos = player.xPos;
         newPlayer.yPos = player.yPos;
