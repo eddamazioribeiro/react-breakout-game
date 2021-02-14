@@ -12,7 +12,7 @@ var _ticker = null;
 const Game = ({width, height, tilesize}) => {
   let _iniX = ((width * tilesize) / 2) - ((tilesize * 5) / 2);
   let _iniY = (height * tilesize) - tilesize;
-  
+
   const gameSpeed = 100;
   const gameScreen = useRef();
   const [timer, setTimer] = useState(0);
@@ -91,7 +91,7 @@ const Game = ({width, height, tilesize}) => {
 
   const createMap = () => {
     _map.data = [[]];
-    
+
     for (let i = 0; i <= width * tilesize; i++) {
 
       _map.data.push([]);
@@ -161,9 +161,9 @@ const Game = ({width, height, tilesize}) => {
 
   const showTitleScreen = () => {
     const context = gameScreen.current.getContext('2d');
-    
+
     context.clearRect(0, 0, width * tilesize, height * tilesize);
-    
+
     context.fillStyle = 'black';
     context.font = 'bold 24px EarlyGameboy';
     context.textBaseline = 'middle';
@@ -305,9 +305,9 @@ const Game = ({width, height, tilesize}) => {
 
     showGameOver();
 
+    clearInterval(_ticker);
+
     setTimeout(() => {
-      clearInterval(_ticker);
-      
       setGameOver(false);
       setGamePaused(false);
       setGameStarted(false);
