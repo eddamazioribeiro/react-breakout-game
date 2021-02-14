@@ -8,6 +8,7 @@ var _score = 0;
 var _highScore = 0;
 var _keyState = {};
 var _ticker = null;
+var _level = 0;
 
 const Game = ({width, height, tilesize}) => {
   let _iniX = ((width * tilesize) / 2) - ((tilesize * 5) / 2);
@@ -19,7 +20,6 @@ const Game = ({width, height, tilesize}) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [level, setLevel] = useState(0);
   const [ball, setBall] = useState({
     width: tilesize,
     height: tilesize,
@@ -34,7 +34,7 @@ const Game = ({width, height, tilesize}) => {
     height: tilesize,
     xPos: _iniX,
     xDir: 0,
-    yPos: _iniY - (level * tilesize)
+    yPos: _iniY - (_level * tilesize)
   });
 
   useEffect(() => {
@@ -54,10 +54,9 @@ const Game = ({width, height, tilesize}) => {
     bindEvent('keydown', handleKeyDown);
 
     _score = 0;
+    _iniY -= (_level * tilesize);
 
     createMap();
-
-    _iniY -= (level * tilesize);
 
     clearPlayer(_iniX, _iniY);
     clearBall(_iniX, _iniY);
@@ -70,7 +69,7 @@ const Game = ({width, height, tilesize}) => {
     let newPlayer = {...player};
 
     newPlayer.xPos = x;
-    newPlayer.yPos = y - (level * tilesize);
+    newPlayer.yPos = y;
     newPlayer.xDir = 0;
     newPlayer.yDir = 0;
 
@@ -81,7 +80,7 @@ const Game = ({width, height, tilesize}) => {
     let newBall = {...ball};
 
     newBall.xPos = x;
-    newBall.yPos = y - (2 * player.height);
+    newBall.yPos = y - (2 * tilesize);
     newBall.xDir = -1;
     newBall.yDir = -1;
     newBall.isDead = false;
@@ -306,6 +305,8 @@ const Game = ({width, height, tilesize}) => {
     showGameOver();
 
     clearInterval(_ticker);
+
+    _level++;
 
     setTimeout(() => {
       setGameOver(false);
