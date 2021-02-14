@@ -19,6 +19,7 @@ const Game = ({width, height, tilesize}) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [level, setLevel] = useState(0);
   const [ball, setBall] = useState({
     width: tilesize,
     height: tilesize,
@@ -33,7 +34,7 @@ const Game = ({width, height, tilesize}) => {
     height: tilesize,
     xPos: _iniX,
     xDir: 0,
-    yPos: _iniY
+    yPos: _iniY - (level * tilesize)
   });
 
   useEffect(() => {
@@ -56,6 +57,8 @@ const Game = ({width, height, tilesize}) => {
 
     createMap();
 
+    _iniY -= (level * tilesize);
+
     clearPlayer(_iniX, _iniY);
     clearBall(_iniX, _iniY);
 
@@ -67,7 +70,7 @@ const Game = ({width, height, tilesize}) => {
     let newPlayer = {...player};
 
     newPlayer.xPos = x;
-    newPlayer.yPos = y;
+    newPlayer.yPos = y - (level * tilesize);
     newPlayer.xDir = 0;
     newPlayer.yDir = 0;
 
@@ -413,8 +416,8 @@ const Game = ({width, height, tilesize}) => {
   }
 
   const handleHitPlayer = (newX, newY, newBall) => {
-    if ((newY >= player.yPos)
-      &&(newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
+    if ((newY === player.yPos)
+      && (newX >= player.xPos) && (newX <= player.xPos + player.width + tilesize)) {
       newBall.yDir = newBall.yDir * -1;
 
       const newXDir = () => {
