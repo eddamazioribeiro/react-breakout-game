@@ -299,6 +299,19 @@ const Game = ({width, height, tilesize}) => {
       );
   }
 
+  const showLevel = () => {
+    const context = gameScreen.current.getContext('2d');
+
+    context.fillStyle = 'black';
+    context.font = 'bold 19px EarlyGameboy';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('LEVEL ' + _level,
+        ((width * tilesize) / 2),
+        ((height * tilesize) / 2) + 20
+      );
+  }
+
   const handleGameOver = () => {
     setHighScore(_score);
 
@@ -316,7 +329,7 @@ const Game = ({width, height, tilesize}) => {
       init();
     }, 1000);
   }
-
+ 
   const pauseGame = (pause) => {
     setGamePaused(pause);
   }
